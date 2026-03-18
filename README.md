@@ -7,9 +7,21 @@
  ╚══════╝╚══════╝  ╚═══╝   ╚═════╝
 ```
 
-Eine plattformübergreifende Desktop-Anwendung, die die vollständige Funktionalität von FFmpeg über eine einfache, intuitive grafische Benutzeroberfläche zugänglich macht.
+Eine plattformübergreifende Desktop-Anwendung für FFmpeg – Audio & Video konvertieren ohne Kommandozeile.
 
-![FFmpegUI Screenshot](docs/screenshot.png)
+## Download
+
+> **FFmpeg wird automatisch mitinstalliert** – keine separate Installation nötig.
+
+| Plattform | Download |
+|---|---|
+| 🪟 Windows | [Levo_0.1.0_x64-setup.exe](https://github.com/Zenovs/Levo/releases/latest/download/Levo_0.1.0_x64-setup.exe) · [.msi](https://github.com/Zenovs/Levo/releases/latest/download/Levo_0.1.0_x64_en-US.msi) |
+| 🍎 macOS | [Levo_0.1.0_universal.dmg](https://github.com/Zenovs/Levo/releases/latest/download/Levo_0.1.0_universal.dmg) |
+| 🐧 Linux | [levo_0.1.0_amd64.AppImage](https://github.com/Zenovs/Levo/releases/latest/download/levo_0.1.0_amd64.AppImage) · [.deb](https://github.com/Zenovs/Levo/releases/latest/download/levo_0.1.0_amd64.deb) |
+
+→ **[Alle Releases & Changelogs](https://github.com/Zenovs/Levo/releases)**
+
+---
 
 ## Features
 
@@ -18,53 +30,26 @@ Eine plattformübergreifende Desktop-Anwendung, die die vollständige Funktional
 - **Video-Einstellungen** – Codec (H.264, H.265, VP9, AV1), Auflösung, FPS, CRF/CBR/VBR
 - **Audio-Einstellungen** – Codec, Bitrate, Sample Rate, Kanäle
 - **Schnitt/Trimmen** – Start- und Endpunkt per Zeitstempel
-- **Batch-Verarbeitung** – Mehrere Dateien in der Queue
-- **Schnell-Presets** – Web-Video, MP3, Dateigröße reduzieren, GIF, FLAC
+- **Batch-Verarbeitung** – Mehrere Dateien gleichzeitig in der Queue
+- **Schnell-Presets** – Web-Video, MP3, Dateigröße reduzieren, Screencast, GIF, FLAC
+- **3 Themes** – Dark, Light, Color (lila)
 - **FFmpeg-Befehl-Vorschau** – Immer sichtbar, kopierbar
-- **Hardware-Beschleunigung** – NVENC, QSV, VideoToolbox, VAAPI (automatisch wählbar)
-- **Fortschrittsanzeige** – Echtzeit mit FPS, Speed und ETA
+- **Hardware-Beschleunigung** – NVENC, QSV, VideoToolbox, VAAPI
+- **Auto-Update** – Direkt in der App auf neue Versionen aktualisieren
 
-## Download
-
-Lade die neueste Version für dein Betriebssystem herunter:
-
-| Plattform | Datei |
-|---|---|
-| Windows | `FFmpegUI_x.x.x_x64-setup.exe` oder `.msi` |
-| macOS | `FFmpegUI_x.x.x_universal.dmg` |
-| Linux | `ffmpegui_x.x.x_amd64.AppImage` oder `.deb` |
-
-→ **[Neueste Version auf GitHub Releases](../../releases/latest)**
-
-## Voraussetzungen
-
-FFmpegUI benötigt FFmpeg auf deinem System:
-
-### Linux
-```bash
-sudo apt install ffmpeg       # Ubuntu/Debian
-sudo dnf install ffmpeg       # Fedora
-sudo pacman -S ffmpeg         # Arch Linux
-```
-
-### macOS
-```bash
-brew install ffmpeg
-```
-
-### Windows
-FFmpeg wird automatisch mitgebündelt – keine separate Installation nötig.
+---
 
 ## Entwicklung
 
 ### Voraussetzungen
 - [Node.js](https://nodejs.org/) 22+
 - [Rust](https://www.rust-lang.org/tools/install) 1.77+
-- Tauri-Systemabhängigkeiten (Linux): `sudo apt install libwebkit2gtk-4.1-dev build-essential libssl-dev libayatana-appindicator3-dev librsvg2-dev`
+- Linux: `sudo apt install libwebkit2gtk-4.1-dev build-essential libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg`
+- macOS: `brew install ffmpeg`
 
 ### Setup
 ```bash
-git clone https://github.com/dario-zenhaeusern/Levo
+git clone https://github.com/Zenovs/Levo
 cd Levo
 npm install
 npm run tauri dev
@@ -75,6 +60,15 @@ npm run tauri dev
 npm run tauri build
 ```
 
+### Release erstellen
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+# → GitHub Actions baut automatisch alle Plattformen
+```
+
+---
+
 ## Tech Stack
 
 | Schicht | Technologie |
@@ -83,25 +77,10 @@ npm run tauri build
 | Komponenten | Radix UI + Tailwind CSS |
 | State | Zustand |
 | Desktop-Shell | Tauri 2.x (Rust) |
-| FFmpeg | System-Binary oder Sidecar |
-| Build | Vite |
-
-## Projektstruktur
-
-```
-├── src/                    # React Frontend (TypeScript)
-│   ├── components/         # UI-Komponenten
-│   ├── stores/             # Zustand State Stores
-│   └── lib/                # Utilities, Typen, FFmpeg-Builder
-├── src-tauri/              # Rust Backend
-│   └── src/
-│       ├── commands.rs     # Tauri IPC-Commands
-│       └── ffmpeg/         # FFmpeg Prozess-Management
-└── .github/workflows/      # CI/CD GitHub Actions
-```
+| FFmpeg | Gebundelt + System-Fallback |
+| Build | Vite + GitHub Actions |
 
 ## Lizenz
 
 MIT License – Siehe [LICENSE](LICENSE) für Details.
-
-Das mitgelieferte FFmpeg-Binary (Windows) steht unter der LGPL-Lizenz. Siehe [NOTICE.md](NOTICE.md).
+FFmpeg-Binary (Windows/macOS) unter LGPL – Siehe [NOTICE.md](NOTICE.md).
