@@ -1,0 +1,132 @@
+import type { Preset } from "./types";
+
+export const PRESETS: Preset[] = [
+  {
+    id: "web-video",
+    name: "Web-Video",
+    description: "H.264 + AAC, 1080p – optimal für Web & Social Media",
+    icon: "Globe",
+    settings: {
+      outputFormat: "mp4",
+      videoSettings: {
+        codec: "libx264",
+        resolution: "1920x1080",
+        framerate: "source",
+        rateControl: "crf",
+        crfValue: 23,
+        preset: "medium",
+        pixFmt: "yuv420p",
+        hwAccel: "none",
+        bitrate: "4000k",
+      },
+      audioSettings: {
+        codec: "aac",
+        bitrate: "192k",
+        sampleRate: "48000",
+        channels: "source",
+      },
+    },
+  },
+  {
+    id: "mp3-audio",
+    name: "MP3 320k",
+    description: "Höchste MP3-Qualität (320 kbps VBR)",
+    icon: "Music",
+    settings: {
+      outputFormat: "mp3",
+      audioSettings: {
+        codec: "libmp3lame",
+        bitrate: "320k",
+        sampleRate: "source",
+        channels: "source",
+      },
+    },
+  },
+  {
+    id: "compress-h265",
+    name: "Dateigröße reduzieren",
+    description: "H.265 CRF 28 – gleiche Qualität, ~40% kleiner",
+    icon: "Minimize2",
+    settings: {
+      outputFormat: "mp4",
+      videoSettings: {
+        codec: "libx265",
+        resolution: "source",
+        framerate: "source",
+        rateControl: "crf",
+        crfValue: 28,
+        preset: "slow",
+        pixFmt: "yuv420p",
+        hwAccel: "none",
+        bitrate: "2000k",
+      },
+      audioSettings: {
+        codec: "aac",
+        bitrate: "128k",
+        sampleRate: "source",
+        channels: "source",
+      },
+    },
+  },
+  {
+    id: "screencast",
+    name: "Bildschirmaufnahme",
+    description: "Optimiert für Screencasts (Text scharf, kleine Datei)",
+    icon: "Monitor",
+    settings: {
+      outputFormat: "mp4",
+      videoSettings: {
+        codec: "libx264",
+        resolution: "source",
+        framerate: "source",
+        rateControl: "crf",
+        crfValue: 18,
+        preset: "medium",
+        pixFmt: "yuv420p",
+        hwAccel: "none",
+        bitrate: "4000k",
+      },
+      audioSettings: {
+        codec: "aac",
+        bitrate: "128k",
+        sampleRate: "44100",
+        channels: "source",
+      },
+    },
+  },
+  {
+    id: "gif",
+    name: "GIF erstellen",
+    description: "Animiertes GIF aus Video-Ausschnitt",
+    icon: "Sparkles",
+    settings: {
+      outputFormat: "gif",
+      videoSettings: {
+        codec: "copy",
+        resolution: "480x270",
+        framerate: "15",
+        rateControl: "crf",
+        crfValue: 23,
+        preset: "medium",
+        pixFmt: "yuv420p",
+        hwAccel: "none",
+        bitrate: "1000k",
+      },
+    },
+  },
+  {
+    id: "flac-lossless",
+    name: "FLAC verlustfrei",
+    description: "Verlustfreie Audiokopie als FLAC",
+    icon: "Waves",
+    settings: {
+      outputFormat: "flac",
+      audioSettings: {
+        codec: "flac",
+        bitrate: "320k",
+        sampleRate: "source",
+        channels: "source",
+      },
+    },
+  },
+];
