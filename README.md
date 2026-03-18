@@ -15,9 +15,9 @@ Eine plattformübergreifende Desktop-Anwendung für FFmpeg – Audio & Video kon
 
 | Plattform | Download |
 |---|---|
-| 🪟 Windows | [Levo_0.1.0_x64-setup.exe](https://github.com/Zenovs/Levo/releases/latest/download/Levo_0.1.0_x64-setup.exe) · [.msi](https://github.com/Zenovs/Levo/releases/latest/download/Levo_0.1.0_x64_en-US.msi) |
-| 🍎 macOS | [Levo_0.1.0_universal.dmg](https://github.com/Zenovs/Levo/releases/latest/download/Levo_0.1.0_universal.dmg) |
-| 🐧 Linux | [levo_0.1.0_amd64.AppImage](https://github.com/Zenovs/Levo/releases/latest/download/levo_0.1.0_amd64.AppImage) · [.deb](https://github.com/Zenovs/Levo/releases/latest/download/levo_0.1.0_amd64.deb) |
+| 🪟 Windows | [→ Installer (.exe / .msi)](https://github.com/Zenovs/Levo/releases/latest) |
+| 🍎 macOS | [→ Disk Image (.dmg)](https://github.com/Zenovs/Levo/releases/latest) |
+| 🐧 Linux | [→ AppImage / .deb](https://github.com/Zenovs/Levo/releases/latest) |
 
 → **[Alle Releases & Changelogs](https://github.com/Zenovs/Levo/releases)**
 
@@ -58,13 +58,6 @@ npm run tauri dev
 ### Build
 ```bash
 npm run tauri build
-```
-
-### Release erstellen
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-# → GitHub Actions baut automatisch alle Plattformen
 ```
 
 ---
