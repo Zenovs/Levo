@@ -20,8 +20,7 @@
         "resizable": true,
         "fullscreen": false,
         "decorations": true,
-        "center": true,
-        "shadow": true
+        "center": true
       }
     ],
     "security": {
@@ -38,44 +37,19 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": [],
-    "resources": {
-      "binaries/*": "binaries/"
-    },
-    "windows": {
-      "webviewInstallMode": {
-        "type": "embedBootstrapper"
-      },
-      "wix": {
-        "componentRefs": []
-      }
-    },
     "linux": {
       "deb": {
         "depends": ["ffmpeg", "libwebkit2gtk-4.1-0"]
-      },
-      "appimage": {
-        "bundleMediaFramework": true
       }
-    },
-    "macOS": {
-      "minimumSystemVersion": "10.15",
-      "frameworks": []
-    },
-    "updater": {
-      "active": true,
-      "pubkey": "",
-      "endpoints": [
-        "https://github.com/Zenovs/Levo/releases/latest/download/latest.json"
-      ]
     }
   },
   "plugins": {
     "updater": {
-      "pubkey": "",
       "endpoints": [
         "https://github.com/Zenovs/Levo/releases/latest/download/latest.json"
-      ]
+      ],
+      "dialog": true,
+      "pubkey": ""
     }
   }
 }
