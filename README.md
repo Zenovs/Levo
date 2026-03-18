@@ -1,4 +1,11 @@
-# FFmpegUI
+```
+ ██╗     ███████╗██╗   ██╗ ██████╗
+ ██║     ██╔════╝██║   ██║██╔═══██╗
+ ██║     █████╗  ██║   ██║██║   ██║
+ ██║     ██╔══╝  ╚██╗ ██╔╝██║   ██║
+ ███████╗███████╗ ╚████╔╝ ╚██████╔╝
+ ╚══════╝╚══════╝  ╚═══╝   ╚═════╝
+```
 
 Eine plattformübergreifende Desktop-Anwendung, die die vollständige Funktionalität von FFmpeg über eine einfache, intuitive grafische Benutzeroberfläche zugänglich macht.
 

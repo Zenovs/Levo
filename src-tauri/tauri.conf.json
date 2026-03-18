@@ -1,7 +1,7 @@
 {
-  "productName": "FFmpegUI",
+  "productName": "Levo",
   "version": "0.1.0",
-  "identifier": "com.ffmpegui.app",
+  "identifier": "com.levo.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -12,15 +12,16 @@
     "withGlobalTauri": false,
     "windows": [
       {
-        "title": "FFmpegUI",
+        "title": "Levo",
         "width": 1200,
-        "height": 750,
-        "minWidth": 900,
-        "minHeight": 600,
+        "height": 760,
+        "minWidth": 960,
+        "minHeight": 620,
         "resizable": true,
         "fullscreen": false,
         "decorations": true,
-        "center": true
+        "center": true,
+        "shadow": true
       }
     ],
     "security": {
@@ -37,18 +38,44 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "externalBin": [],
     "resources": {
       "binaries/*": "binaries/"
     },
     "windows": {
       "webviewInstallMode": {
         "type": "embedBootstrapper"
+      },
+      "wix": {
+        "componentRefs": []
       }
     },
     "linux": {
       "deb": {
-        "depends": ["ffmpeg"]
+        "depends": ["ffmpeg", "libwebkit2gtk-4.1-0"]
+      },
+      "appimage": {
+        "bundleMediaFramework": true
       }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15",
+      "frameworks": []
+    },
+    "updater": {
+      "active": true,
+      "pubkey": "",
+      "endpoints": [
+        "https://github.com/Zenovs/Levo/releases/latest/download/latest.json"
+      ]
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "",
+      "endpoints": [
+        "https://github.com/Zenovs/Levo/releases/latest/download/latest.json"
+      ]
     }
   }
 }

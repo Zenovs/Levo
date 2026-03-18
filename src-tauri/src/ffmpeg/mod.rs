@@ -72,41 +72,45 @@ pub fn new_registry() -> ProcessRegistry {
 // ─── FFmpeg path detection ────────────────────────────────────────────────────
 
 /// Returns the path to the ffmpeg binary.
-/// First checks for a bundled sidecar, then falls back to system PATH.
+/// Checks bundled sidecar (with platform triple naming) first, then system PATH.
 pub fn ffmpeg_path(app: &AppHandle) -> String {
-    // Try Tauri resource path for bundled binary
-    if let Ok(resource) = app.path().resource_dir() {
-        let candidates = [
-            resource.join("binaries").join("ffmpeg"),
-            resource.join("binaries").join("ffmpeg.exe"),
-            resource.join("ffmpeg"),
-            resource.join("ffmpeg.exe"),
-        ];
-        for candidate in &candidates {
-            if candidate.exists() {
-                return candidate.to_string_lossy().into_owned();
-            }
-        }
-    }
-    // Fall back to system ffmpeg
-    if cfg!(windows) { "ffmpeg.exe".into() } else { "ffmpeg".into() }
+    find_binary(app, "ffmpeg")
 }
 
 pub fn ffprobe_path(app: &AppHandle) -> String {
+    find_binary(app, "ffprobe")
+}
+
+fn find_binary(app: &AppHandle, name: &str) -> String {
+    // Platform triple for naming bundled binaries
+    let triple = env!("TARGET"); // injected by build.rs via cargo
+    let exe_suffix = if cfg!(windows) { ".exe" } else { "" };
+
     if let Ok(resource) = app.path().resource_dir() {
-        let candidates = [
-            resource.join("binaries").join("ffprobe"),
-            resource.join("binaries").join("ffprobe.exe"),
-            resource.join("ffprobe"),
-            resource.join("ffprobe.exe"),
-        ];
-        for candidate in &candidates {
-            if candidate.exists() {
-                return candidate.to_string_lossy().into_owned();
-            }
+        // 1. Tauri sidecar convention: <name>-<triple>[.exe]
+        let triple_path = resource
+            .join("binaries")
+            .join(format!("{name}-{triple}{exe_suffix}"));
+        if triple_path.exists() {
+            return triple_path.to_string_lossy().into_owned();
+        }
+        // 2. Plain name in binaries/
+        let plain = resource.join("binaries").join(format!("{name}{exe_suffix}"));
+        if plain.exists() {
+            return plain.to_string_lossy().into_owned();
+        }
+        // 3. In resource root
+        let root = resource.join(format!("{name}{exe_suffix}"));
+        if root.exists() {
+            return root.to_string_lossy().into_owned();
         }
     }
-    if cfg!(windows) { "ffprobe.exe".into() } else { "ffprobe".into() }
+    // 4. Fall back to system PATH
+    if cfg!(windows) {
+        format!("{name}.exe")
+    } else {
+        name.to_string()
+    }
 }
 
 // ─── Progress Parsing ────────────────────────────────────────────────────────

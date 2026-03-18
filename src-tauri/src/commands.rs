@@ -1,7 +1,7 @@
 use crate::ffmpeg::{self, MediaInfo, ProcessRegistry};
 use tauri::{AppHandle, State};
 
-/// Start an FFmpeg job.
+/// Start an FFmpeg job asynchronously.
 /// `args` is the full argument list (without the binary name).
 #[tauri::command]
 pub async fn start_job(
@@ -12,6 +12,8 @@ pub async fn start_job(
     output_path: String,
     registry: State<'_, ProcessRegistry>,
 ) -> Result<(), String> {
+    let _ = input_path; // used for context, actual path is in args
+
     let ffmpeg_bin = ffmpeg::ffmpeg_path(&app);
     let registry_clone = registry.inner().clone();
 
@@ -22,7 +24,6 @@ pub async fn start_job(
     }
 
     ffmpeg::run_job(app, job_id, ffmpeg_bin, args, output_path, registry_clone);
-    void input_path;
     Ok(())
 }
 
@@ -41,10 +42,7 @@ pub async fn cancel_job(
 
 /// Get media info for a file using ffprobe.
 #[tauri::command]
-pub async fn probe_file(
-    app: AppHandle,
-    path: String,
-) -> Result<MediaInfo, String> {
+pub async fn probe_file(app: AppHandle, path: String) -> Result<MediaInfo, String> {
     let ffprobe_bin = ffmpeg::ffprobe_path(&app);
     ffmpeg::probe_file(&ffprobe_bin, &path)
 }
@@ -56,14 +54,16 @@ pub async fn get_ffmpeg_version(app: AppHandle) -> Result<String, String> {
     let output = std::process::Command::new(&ffmpeg_bin)
         .arg("-version")
         .output()
-        .map_err(|_| format!("FFmpeg nicht gefunden. Bitte FFmpeg installieren: https://ffmpeg.org/download.html"))?;
+        .map_err(|_| {
+            "FFmpeg nicht gefunden. Bitte installieren: https://ffmpeg.org/download.html".to_string()
+        })?;
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Extract version: "ffmpeg version 6.1 Copyright..."
     let version = stdout
         .lines()
         .next()
         .and_then(|line| {
+            // "ffmpeg version 6.1 Copyright..." → take 3rd word
             let parts: Vec<&str> = line.split_whitespace().collect();
             parts.get(2).map(|s| s.to_string())
         })
@@ -71,5 +71,3 @@ pub async fn get_ffmpeg_version(app: AppHandle) -> Result<String, String> {
 
     Ok(version)
 }
-
-fn void(_: String) {}
