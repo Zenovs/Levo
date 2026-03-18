@@ -9,17 +9,14 @@ pub struct UpdateInfo {
     pub version: Option<String>,
     pub current_version: Option<String>,
     pub body: Option<String>,
-    pub download_url: Option<String>,
 }
 
 #[tauri::command]
 pub async fn check_for_update(app: AppHandle) -> Result<UpdateInfo, String> {
-    let package_info = app.package_info();
-    let current_version = package_info.version.to_string();
+    let current_version = app.package_info().version.to_string();
 
     let updater = app
-        .updater_builder()
-        .build()
+        .updater()
         .map_err(|e| format!("Updater-Fehler: {e}"))?;
 
     match updater.check().await {
@@ -28,14 +25,12 @@ pub async fn check_for_update(app: AppHandle) -> Result<UpdateInfo, String> {
             version: Some(update.version.clone()),
             current_version: Some(current_version),
             body: update.body.clone(),
-            download_url: None,
         }),
         Ok(None) => Ok(UpdateInfo {
             available: false,
             version: None,
             current_version: Some(current_version),
             body: None,
-            download_url: None,
         }),
         Err(e) => Err(format!("Update-Prüfung fehlgeschlagen: {e}")),
     }
@@ -44,8 +39,7 @@ pub async fn check_for_update(app: AppHandle) -> Result<UpdateInfo, String> {
 #[tauri::command]
 pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
     let updater = app
-        .updater_builder()
-        .build()
+        .updater()
         .map_err(|e| format!("Updater-Fehler: {e}"))?;
 
     let update = updater
@@ -63,6 +57,6 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn restart_app(app: AppHandle) -> Result<(), String> {
+pub fn restart_app(app: AppHandle) {
     app.restart();
 }

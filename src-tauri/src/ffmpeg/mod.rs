@@ -217,14 +217,6 @@ pub fn run_job(
             }
         };
 
-        // Store child for cancellation
-        {
-            let mut reg = registry.lock().unwrap();
-            // We can't move child into registry and also read stderr, so we handle it differently
-            // Store pid for kill
-            drop(reg);
-        }
-
         let stderr = match child.stderr.take() {
             Some(s) => s,
             None => {
