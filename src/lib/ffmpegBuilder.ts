@@ -47,6 +47,7 @@ export function buildFFmpegArgs(
 
   const isGif  = outputFormat === "gif";
   const isHls  = outputFormat === "m3u8";
+  const hls    = settings.hlsSettings;
 
   // ── HLS: special handling — output is a .m3u8 playlist + .ts segments ────
   if (isHls) {
@@ -56,8 +57,12 @@ export function buildFFmpegArgs(
     }
     args.push("-c:a", "aac", "-b:a", as_.bitrate);
     args.push("-f", "hls");
-    args.push("-hls_time", "6");           // segment length in seconds
-    args.push("-hls_list_size", "0");      // keep all segments in playlist
+    args.push("-hls_time",      String(hls.segmentDuration));
+    args.push("-hls_list_size", String(hls.listSize));
+    if (hls.playlistType !== "none") {
+      args.push("-hls_playlist_type", hls.playlistType);
+    }
+    args.push("-start_number", String(hls.startNumber));
     args.push("-hls_segment_filename", outputPath.replace(".m3u8", "_%03d.ts"));
     args.push("-y", outputPath);
     return args;
@@ -216,6 +221,12 @@ export function defaultConversionSettings(): ConversionSettings {
       enabled: false,
       startTime: "",
       endTime: "",
+    },
+    hlsSettings: {
+      segmentDuration: 6,
+      listSize: 0,
+      playlistType: "vod",
+      startNumber: 0,
     },
     outputDir: "",
     outputFileSuffix: "_converted",

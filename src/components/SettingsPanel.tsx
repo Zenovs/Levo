@@ -9,7 +9,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { Folder, ChevronDown, ChevronUp, Info } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/utils";
-import type { ConversionSettings } from "../lib/types";
+import type { ConversionSettings, HlsSettings } from "../lib/types";
 
 // ─── Reusable mini-components ─────────────────────────────────────────────────
 
@@ -272,7 +272,7 @@ function FmtBtn({ ext, label, active, onClick, type }: {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-type Tab = "video" | "audio" | "trim" | "output";
+type Tab = "video" | "audio" | "trim" | "hls" | "output";
 
 export function SettingsPanel() {
   const [tab, setTab] = useState<Tab>("video");
@@ -282,6 +282,7 @@ export function SettingsPanel() {
     setVideoSettings,
     setAudioSettings,
     setTrim,
+    setHlsSettings,
     setOutputDir,
     setOutputFileSuffix,
   } = useSettingsStore();
@@ -289,7 +290,8 @@ export function SettingsPanel() {
 
   const selectedJob = jobs.find((j) => j.id === selectedJobId);
   const isAudioOnly = ["mp3","aac","flac","wav","ogg","m4a","opus","ac3"].includes(settings.outputFormat);
-  const isGif = settings.outputFormat === "gif";
+  const isGif  = settings.outputFormat === "gif";
+  const isHls  = settings.outputFormat === "m3u8";
 
   const outputPreview = buildOutputPath(
     selectedJob?.inputPath ?? "/pfad/zur/datei.mp4",
@@ -305,8 +307,12 @@ export function SettingsPanel() {
     } catch (e) { console.error(e); }
   }
 
-  // Auto-switch to audio tab if audio-only format selected
-  const effectiveTab = isAudioOnly && tab === "video" ? "audio" : tab;
+  // Auto-switch tabs when format changes
+  const effectiveTab =
+    isAudioOnly && tab === "video" ? "audio" :
+    isHls && tab === "video" ? "hls" :
+    isHls && tab === "trim" ? "hls" :
+    tab;
 
   return (
     <div className="flex flex-col h-full">
@@ -333,11 +339,18 @@ export function SettingsPanel() {
           className="flex rounded-xl p-0.5 gap-0.5"
           style={{ background: "var(--bg-overlay)" }}
         >
-          {!isAudioOnly && (
+          {!isAudioOnly && !isHls && (
             <TabBtn active={effectiveTab === "video"} onClick={() => setTab("video")}>Video</TabBtn>
           )}
-          <TabBtn active={effectiveTab === "audio"} onClick={() => setTab("audio")}>Audio</TabBtn>
-          <TabBtn active={effectiveTab === "trim"}  onClick={() => setTab("trim")}>Schnitt</TabBtn>
+          {!isHls && (
+            <TabBtn active={effectiveTab === "audio"} onClick={() => setTab("audio")}>Audio</TabBtn>
+          )}
+          {isHls && (
+            <TabBtn active={effectiveTab === "hls"} onClick={() => setTab("hls")}>HLS</TabBtn>
+          )}
+          {!isHls && (
+            <TabBtn active={effectiveTab === "trim"}  onClick={() => setTab("trim")}>Schnitt</TabBtn>
+          )}
           <TabBtn active={effectiveTab === "output"} onClick={() => setTab("output")}>Ausgabe</TabBtn>
         </div>
       </div>
@@ -559,6 +572,143 @@ export function SettingsPanel() {
                 </p>
               </div>
             )}
+          </>
+        )}
+
+        {/* ═══ HLS ═══ */}
+        {effectiveTab === "hls" && (
+          <>
+            {/* Info banner */}
+            <div
+              className="rounded-xl p-3 text-xs"
+              style={{ background: "var(--primary-subtle)", border: "1px solid var(--primary)", color: "var(--text-secondary)" }}
+            >
+              <span className="font-semibold" style={{ color: "var(--primary)" }}>HLS Output:</span>{" "}
+              Erzeugt eine <code>.m3u8</code>-Playlist und nummerierte <code>.ts</code>-Segmente im gleichen Ordner.
+            </div>
+
+            {/* Segment duration */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <FieldLabel hint="Länge jedes einzelnen .ts-Segments in Sekunden. Kleinere Werte = mehr Dateien, schnelleres Seek.">
+                  Segmentlänge
+                </FieldLabel>
+                <span className="font-mono font-bold text-sm px-2 py-0.5 rounded-md" style={{ background: "var(--bg-overlay)", color: "var(--primary)" }}>
+                  {settings.hlsSettings.segmentDuration}s
+                </span>
+              </div>
+              <Slider
+                min={1} max={60} step={1}
+                value={settings.hlsSettings.segmentDuration}
+                onChange={(v) => setHlsSettings({ segmentDuration: v })}
+              />
+              <div className="flex justify-between mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                <span>1s (Live)</span>
+                <span>6s (Standard)</span>
+                <span>60s (VOD)</span>
+              </div>
+            </div>
+
+            {/* List size */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <FieldLabel hint="Maximale Anzahl Segmente in der Playlist. 0 = alle Segmente behalten (empfohlen für VOD).">
+                  Playlist-Größe
+                </FieldLabel>
+                <span className="font-mono font-bold text-sm px-2 py-0.5 rounded-md" style={{ background: "var(--bg-overlay)", color: "var(--primary)" }}>
+                  {settings.hlsSettings.listSize === 0 ? "alle" : settings.hlsSettings.listSize}
+                </span>
+              </div>
+              <Slider
+                min={0} max={20} step={1}
+                value={settings.hlsSettings.listSize}
+                onChange={(v) => setHlsSettings({ listSize: v })}
+              />
+              <div className="flex justify-between mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                <span>0 = alle</span>
+                <span>Live-Fenster →</span>
+                <span>20</span>
+              </div>
+            </div>
+
+            {/* Playlist type */}
+            <div>
+              <FieldLabel hint="VOD: komplette Datei. Event: wächst live. None: kein Type-Tag.">
+                Playlist-Typ
+              </FieldLabel>
+              <SegmentControl
+                value={settings.hlsSettings.playlistType}
+                onChange={(v) => setHlsSettings({ playlistType: v as HlsSettings["playlistType"] })}
+                options={[
+                  { value: "vod",   label: "VOD" },
+                  { value: "event", label: "Event (Live)" },
+                  { value: "none",  label: "Keiner" },
+                ]}
+              />
+            </div>
+
+            {/* Start number */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <FieldLabel hint="Nummer des ersten Segments. Standard ist 0 (segment_000.ts).">
+                  Start-Nummer
+                </FieldLabel>
+                <span className="font-mono font-bold text-sm px-2 py-0.5 rounded-md" style={{ background: "var(--bg-overlay)", color: "var(--primary)" }}>
+                  {settings.hlsSettings.startNumber}
+                </span>
+              </div>
+              <Slider
+                min={0} max={100} step={1}
+                value={settings.hlsSettings.startNumber}
+                onChange={(v) => setHlsSettings({ startNumber: v })}
+              />
+            </div>
+
+            {/* Video quality for HLS */}
+            <Collapsible title="Video-Qualität" defaultOpen>
+              <div>
+                <FieldLabel>Codec</FieldLabel>
+                <NativeSelect
+                  value={settings.videoSettings.codec}
+                  onChange={(v) => setVideoSettings({ codec: v as ConversionSettings["videoSettings"]["codec"] })}
+                >
+                  <option value="libx264">H.264 (libx264) – empfohlen</option>
+                  <option value="copy">Stream Copy (kein Re-Encoding)</option>
+                </NativeSelect>
+              </div>
+              {settings.videoSettings.codec !== "copy" && (
+                <>
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <FieldLabel hint="Niedrigerer Wert = bessere Qualität.">CRF-Wert</FieldLabel>
+                      <span className="font-mono font-bold text-sm px-2 py-0.5 rounded-md" style={{ background: "var(--bg-overlay)", color: "var(--primary)" }}>
+                        {settings.videoSettings.crfValue}
+                      </span>
+                    </div>
+                    <Slider min={0} max={51} step={1} value={settings.videoSettings.crfValue} onChange={(v) => setVideoSettings({ crfValue: v })} />
+                  </div>
+                  <div>
+                    <FieldLabel>Encoding-Preset</FieldLabel>
+                    <NativeSelect value={settings.videoSettings.preset} onChange={(v) => setVideoSettings({ preset: v })}>
+                      {ENCODING_PRESETS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+                    </NativeSelect>
+                  </div>
+                </>
+              )}
+              <div>
+                <FieldLabel>Audio-Bitrate</FieldLabel>
+                <div className="flex flex-wrap gap-1.5">
+                  {AUDIO_BITRATES.map((b) => (
+                    <button key={b} onClick={() => setAudioSettings({ bitrate: b })}
+                      className="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
+                      style={settings.audioSettings.bitrate === b
+                        ? { background: "var(--primary)", color: "white" }
+                        : { background: "var(--bg-input)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
+                    >{b}</button>
+                  ))}
+                </div>
+              </div>
+            </Collapsible>
           </>
         )}
 

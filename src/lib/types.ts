@@ -81,11 +81,19 @@ export interface TrimSettings {
   endTime: string;
 }
 
+export interface HlsSettings {
+  segmentDuration: number;   // -hls_time (seconds per segment)
+  listSize: number;          // -hls_list_size (0 = keep all)
+  playlistType: "vod" | "event" | "none";  // -hls_playlist_type
+  startNumber: number;       // -start_number (first segment index)
+}
+
 export interface ConversionSettings {
   outputFormat: string;
   videoSettings: VideoSettings;
   audioSettings: AudioSettings;
   trim: TrimSettings;
+  hlsSettings: HlsSettings;
   outputDir: string;
   outputFileSuffix: string;
 }

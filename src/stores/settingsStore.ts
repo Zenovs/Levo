@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ConversionSettings, VideoSettings, AudioSettings, TrimSettings } from "../lib/types";
+import type { ConversionSettings, VideoSettings, AudioSettings, TrimSettings, HlsSettings } from "../lib/types";
 import { defaultConversionSettings } from "../lib/ffmpegBuilder";
 import { FORMATS } from "../lib/formats";
 
@@ -9,6 +9,7 @@ interface SettingsState {
   setVideoSettings: (patch: Partial<VideoSettings>) => void;
   setAudioSettings: (patch: Partial<AudioSettings>) => void;
   setTrim: (patch: Partial<TrimSettings>) => void;
+  setHlsSettings: (patch: Partial<HlsSettings>) => void;
   setOutputDir: (dir: string) => void;
   setOutputFileSuffix: (suffix: string) => void;
   applyPreset: (patch: Partial<ConversionSettings> & {
@@ -63,6 +64,14 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       settings: {
         ...state.settings,
         trim: { ...state.settings.trim, ...patch },
+      },
+    })),
+
+  setHlsSettings: (patch) =>
+    set((state) => ({
+      settings: {
+        ...state.settings,
+        hlsSettings: { ...state.settings.hlsSettings, ...patch },
       },
     })),
 
