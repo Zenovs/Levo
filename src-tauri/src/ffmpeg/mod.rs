@@ -1,11 +1,12 @@
+use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
-use tauri::AppHandle;
-use once_cell::sync::Lazy;
+use tauri::{AppHandle, Emitter, Manager};
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -86,7 +87,7 @@ fn find_binary(app: &AppHandle, name: &str) -> String {
     let triple = env!("TARGET"); // injected by build.rs via cargo
     let exe_suffix = if cfg!(windows) { ".exe" } else { "" };
 
-    if let Ok(resource) = app.path().resource_dir() {
+    if let Ok(resource) = app.path().resource_dir().map(PathBuf::from) {
         // 1. Tauri sidecar convention: <name>-<triple>[.exe]
         let triple_path = resource
             .join("binaries")

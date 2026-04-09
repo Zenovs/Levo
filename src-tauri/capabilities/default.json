@@ -10,7 +10,6 @@
     "core:event:allow-listen",
     "dialog:default",
     "shell:default",
-    "updater:default",
-    "process:default"
+    "updater:default"
   ]
 }

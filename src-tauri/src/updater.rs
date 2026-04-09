@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
-use tauri_plugin_process::ProcessExt;
 use tauri_plugin_updater::UpdaterExt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -58,6 +57,10 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn restart_app(app: AppHandle) {
-    app.restart();
+pub fn restart_app(_app: AppHandle) {
+    // Spawn a new instance of the app, then exit the current one
+    if let Ok(exe) = std::env::current_exe() {
+        let _ = std::process::Command::new(exe).spawn();
+    }
+    std::process::exit(0);
 }
