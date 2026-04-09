@@ -45,7 +45,23 @@ export function buildFFmpegArgs(
     outputFormat === "ogg" || outputFormat === "m4a" ||
     outputFormat === "opus" || outputFormat === "ac3";
 
-  const isGif = outputFormat === "gif";
+  const isGif  = outputFormat === "gif";
+  const isHls  = outputFormat === "m3u8";
+
+  // ── HLS: special handling — output is a .m3u8 playlist + .ts segments ────
+  if (isHls) {
+    args.push("-c:v", vs.codec === "copy" ? "copy" : "libx264");
+    if (vs.codec !== "copy") {
+      args.push("-crf", String(vs.crfValue), "-preset", vs.preset);
+    }
+    args.push("-c:a", "aac", "-b:a", as_.bitrate);
+    args.push("-f", "hls");
+    args.push("-hls_time", "6");           // segment length in seconds
+    args.push("-hls_list_size", "0");      // keep all segments in playlist
+    args.push("-hls_segment_filename", outputPath.replace(".m3u8", "_%03d.ts"));
+    args.push("-y", outputPath);
+    return args;
+  }
 
   // ── Video codec / stream copy ──────────────────────────────────────────────
   if (isAudioOnly) {

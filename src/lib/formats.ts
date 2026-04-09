@@ -20,6 +20,7 @@ export const FORMATS: FormatDef[] = [
   { ext: "m4v",  label: "M4V",   type: "video", description: "iTunes Video", defaultVideoCodec: "libx264", defaultAudioCodec: "aac" },
   { ext: "ogv",  label: "OGV",   type: "video", description: "Ogg Video (Open Source)", defaultVideoCodec: "libtheora", defaultAudioCodec: "libvorbis" },
   { ext: "gif",  label: "GIF",   type: "image", description: "Animiertes GIF", defaultVideoCodec: "gif", defaultAudioCodec: "none" },
+  { ext: "m3u8", label: "HLS",   type: "video", description: "HTTP Live Streaming (m3u8 + .ts Segmente)", defaultVideoCodec: "libx264", defaultAudioCodec: "aac" },
   // Audio
   { ext: "mp3",  label: "MP3",   type: "audio", description: "Universelles Audio-Format", defaultVideoCodec: "none", defaultAudioCodec: "libmp3lame" },
   { ext: "aac",  label: "AAC",   type: "audio", description: "Modernes verlustbehaftetes Audio", defaultVideoCodec: "none", defaultAudioCodec: "aac" },
