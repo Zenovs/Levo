@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
+use tauri_plugin_process::ProcessExt;
 use tauri_plugin_updater::UpdaterExt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
